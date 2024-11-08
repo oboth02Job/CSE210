@@ -8,10 +8,11 @@ class Program
         int magicNumber = randomGenerator.Next(1, 101);
 
         int guess = -1;
+        
 
         while (guess != magicNumber)
          {
-            Console.WriteLine("What is your guess");
+            
             guess = int.Parse(Console.ReadLine());
 
         }
@@ -28,6 +29,7 @@ class Program
         else 
         {
             Console.WriteLine("You guessed it");
+            
         }
 
     }
