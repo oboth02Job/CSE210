@@ -4,6 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
+<<<<<<< HEAD
         Console.WriteLine("Welcome to the Magic Number Game!");
 
         // Ask the player to set the magic number
@@ -54,5 +55,35 @@ class Program
                     }
                 }  
               }
+=======
+        Random randomGenerator = new Random();
+        int magicNumber = randomGenerator.Next(1, 101);
+
+        int guess = -1;
+        
+
+        while (guess != magicNumber)
+         {
+            
+            guess = int.Parse(Console.ReadLine());
+
+        }
+       if (magicNumber > guess)
+        { 
+        Console.WriteLine("Higher");
+
+        }
+        else if (magicNumber < guess)
+        {
+            Console.WriteLine("Lower");
+        }
+    
+        else 
+        {
+            Console.WriteLine("You guessed it");
+            
+        }
+
+>>>>>>> 95adb64fddf21578bb2bbefe8634f820e8fbc3f2
     }
 }
