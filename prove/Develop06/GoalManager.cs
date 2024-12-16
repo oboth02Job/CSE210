@@ -1,79 +1,148 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 
-public class GoalManager
+public class GoalManagement
+
 {
-    private List<Goal> Goals;
-    private int TotalPoints;
+    // Attributes
+    private List<Goal> _goals = new List<Goal>();
+    private int _totalPoints;
 
-    public GoalManager()
+
+    // Constructors
+    public GoalManagement()
     {
-        Goals = new List<Goal>();
-        TotalPoints = 0;
+        _totalPoints = 0;
+    }
+    public void AddGoal(Goal goal)
+    {
+        _goals.Add(goal);
+    }
+    public int GetTotalPoints()
+    {
+        return _totalPoints;
+    }
+    public void AddPoints(int points)
+    {
+        _totalPoints += points;
+    }
+    public void AddBonus(int bonusPoints)
+    {
+        _totalPoints += bonusPoints;
+    }
+    public void SetTotalPoints(int totalPoints)
+    {
+        _totalPoints = totalPoints;
+    }
+    public List<Goal> GetGoalsList()
+    {
+        return _goals;
     }
 
-    public void CreateGoal(string goalType)
+    // Methods
+    public void ListGoals()
     {
-        Console.WriteLine("Enter the name of your goal: ");
-        string name = Console.ReadLine();
+        if (_goals.Count() > 0)
+        {
+            Console.WriteLine("\nYour Goals are:");
 
-        if (goalType.ToLower() == "simple")
-        {
-            Console.WriteLine("Enter the points for this goal: ");
-            int points = Convert.ToInt32(Console.ReadLine());
-            Goals.Add(new SimpleGoal(name, points));
-        }
-        else if (goalType.ToLower() == "eternal")
-        {
-            Console.WriteLine("Enter the points for this goal: ");
-            int points = Convert.ToInt32(Console.ReadLine());
-            Goals.Add(new EternalGoal(name, points));
-        }
-        else if (goalType.ToLower() == "checklist")
-        {
-            Console.WriteLine("Enter the number of times to complete this goal: ");
-            int goalCount = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Enter the bonus points for this goal: ");
-            int bonusPoints = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Enter the points for each completion: ");
-            int points = Convert.ToInt32(Console.ReadLine());
-            Goals.Add(new ChecklistGoal(name, points, goalCount, bonusPoints));
-        }
-    }
-
-    public void RecordGoal(string goalName)
-    {
-        foreach (var goal in Goals)
-        {
-            if (goal.GoalName == goalName && !goal.IsCompleted)
+            int index = 1;
+            // Loop though goals list
+            foreach (Goal goal in _goals)
             {
-                goal.RecordGoal();
-                TotalPoints += goal.Points;
-                break;
+                goal.ListGoal(index);
+                index = index + 1;
+            }
+        }
+        else
+        {
+            Console.WriteLine("\nYou currently have no goals!");
+        }
+    }
+    public void RecordGoalEvent()
+    {
+        ListGoals();
+
+        Console.Write("\nWhich goal did you accomplished?  ");
+        int select = int.Parse(Console.ReadLine())-1;
+
+        int goalPoints = GetGoalsList()[select].GetPoints();
+        AddPoints(goalPoints);
+
+        GetGoalsList()[select].RecordGoalEvent(_goals);
+
+        Console.WriteLine($"\n*** You have {GetTotalPoints()} points! ***\n");
+    }
+    public void SaveGoals()
+    {
+        Console.Write("\nWhat is the name for this goal file?  ");
+        string userInput = Console.ReadLine();
+        string userFileName = userInput + ".txt";
+
+        using (StreamWriter outputFile = new StreamWriter(userFileName))
+        {
+            // Save Total Points
+            outputFile.WriteLine(GetTotalPoints());
+            // Save goals list
+            foreach (Goal goal in _goals)
+            {
+                outputFile.WriteLine(goal.SaveGoal());
             }
         }
     }
 
-    public void DisplayGoals()
+    public void LoadGoals()
     {
-        foreach (var goal in Goals)
+        Console.Write("\nWhat is the name of your goal file?  ");
+        string userInput = Console.ReadLine();
+        string userFileName = userInput + ".txt";
+
+        if (File.Exists(userFileName))
         {
-            goal.DisplayGoal();
+            string[] readText = File.ReadAllLines(userFileName);
+
+            // read the first line of text file for total stored points
+            int totalPoints = int.Parse(readText[0]);
+            SetTotalPoints(totalPoints);
+            // skip the first line of text file to read to goals
+            readText = readText.Skip(1).ToArray();
+            // loop though text file for goals
+            foreach (string line in readText)
+            {
+                string[] entries = line.Split("; ");
+
+                string type = entries[0];
+                string name = entries[1];
+                string description = entries[2];
+                int points = int.Parse(entries[3]);
+                bool status = Convert.ToBoolean(entries[4]);
+
+                if (entries[0] == "Simple Goal:")
+                {
+                    SimpleGoal sGoal = new SimpleGoal(type, name, description, points, status);
+                    AddGoal(sGoal);
+                }
+                if (entries[0] == "Eternal Goal:")
+                {
+                    EternalGoal eGoal = new EternalGoal(type, name, description, points, status);
+                    AddGoal(eGoal);
+                }
+                if (entries[0] == "Check List Goal:")
+                {
+                    int numberTimes = int.Parse(entries[5]);
+                    int bonusPoints = int.Parse(entries[6]);
+                    int counter = int.Parse(entries[7]);
+                    ChecklistGoal clGoal = new ChecklistGoal(type, name, description, points, status, numberTimes, bonusPoints, counter);
+                    AddGoal(clGoal);
+                }
+                if (entries[0] == "Negative Goal:")
+                {
+                    NegativeGoal nGoal = new NegativeGoal(type, name, description, points, status);
+                    AddGoal(nGoal);
+                }
+            }
         }
     }
 
-    public void ShowScore()
-    {
-        Console.WriteLine($"Your current score is: {TotalPoints} points.");
-    }
 
-    public void SaveGoals()
-    {
-        // Implement saving goals to a file or other storage
-    }
-
-    public void LoadGoals()
-    {
-        // Implement loading goals from a file or other storage
-    }
 }

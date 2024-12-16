@@ -2,21 +2,43 @@ using System;
 
 public abstract class Goal
 {
-    protected string GoalName;
-    protected int Points;
-    protected bool IsCompleted;
+    // Attributes
+    private string _type;
+    private string _name;
+    private string _description;
+    private int _points;
 
-    public Goal(string name)
+
+    // Constructors
+    public Goal(string type, string name, string description, int points)
     {
-        GoalName = name;
-        IsCompleted = false;
+        _type = type;
+        _name = name;
+        _description = description;
+        _points = points;
+    }
+    public string GetType()
+    {
+        return _type;
+    }
+    public string GetName()
+    {
+        return _name;
+    }
+    public string GetDescription()
+    {
+        return _description;
+    }
+    public int GetPoints()
+    {
+        return _points;
     }
 
-    public string GoalName => GoalName;
-    public int Points => Points;
-    public bool IsCompleted => IsCompleted;
 
-    public abstract void RecordGoal();
-    public abstract void DisplayGoal();
-    public abstract void SaveGoal();
+    // Methods
+    public abstract void ListGoal(int i);
+    public abstract string SaveGoal();
+    public abstract string LoadGoal();
+    public abstract void RecordGoalEvent(List<Goal> goals);
+
 }
